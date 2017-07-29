@@ -2,7 +2,7 @@
 ---
 基于github上另外一个名为 Flume-elasticsearch-sink 的项目进行改进，可以正确支持 ElasticSearch 5.5 的版本。
 要最终运行，很关键的一点是，需要把以下jar拷贝到 flume/lib 下，否则运行时候缺少依赖包
-
+```
 compiler-0.9.3.jar
 elasticsearch-5.5.1.jar
 HdrHistogram-2.1.9.jar
@@ -51,7 +51,7 @@ t-digest-3.0.jar
 transport-5.5.0.jar
 transport-netty3-client-5.5.0.jar
 transport-netty4-client-5.5.0.jar
-
+```
 以多线程的方式往ES导数，并实现正则解析
 
 ## 适应 ElasticSearch 5.5版本的flume sink组件
@@ -73,7 +73,7 @@ transport-netty4-client-5.5.0.jar
 
 
 ## demo
----
+```
 consumer.sinks.els.batchSize=2000
 consumer.sinks.els.indexType=logs
 consumer.sinks.els.clusterName=test_search
@@ -84,14 +84,13 @@ consumer.sinks.els.client=rest
 consumer.sinks.els.hostNames=node1.server:9200
 consumer.sinks.els.type=org.apache.flume.sink.elasticsearch.ElasticSearchSink
 
-#--regex
 consumer.sinks.els.serializer.categories=defaultCategory
 consumer.sinks.els.serializer.defaultCategory.regex=^(\\S+) (\\S+) (\\S+) \\[([\\w:/]+\\s[+\\-]\\d{4})\\] \\"(.+?)\\" (\\d{3}) (\\d+) \\"([^\\"]+)\\" \\"([^\\"]+)\\"
 consumer.sinks.els.serializer.defaultCategory.fields=log_ip,log_file,remote_addr,time_local,method,url,http_type,status,body_bytes_sent,http_referer,http_user_agent
-\# consumer.sinks.els.serializer.defaultCategory.split=" "
+# consumer.sinks.els.serializer.defaultCategory.split=" "
 consumer.sinks.els.serializer.defaultCategory.timeField=time_local
 consumer.sinks.els.serializer.defaultCategory.timeFormat=dd/MMM/yyyy:HH:mm:ss Z
 consumer.sinks.els.serializer.defaultCategory.converFields=status,body_bytes_sent
 consumer.sinks.els.serializer.defaultCategory.converTypes=int,int
 consumer.sinks.els.serializer.defaultCategory.storeOrgLog=false
-
+```
