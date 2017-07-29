@@ -42,10 +42,12 @@ public class TestElasticSearchClientFactory {
 
   @Test
   public void shouldReturnTransportClient() throws Exception {
-    String[] hostNames = { "127.0.0.1" };
+    String[] hostNames = { "10.101.185.142" };
     Object o = factory.getClient(ElasticSearchClientFactory.TransportClient,
             hostNames, "test", serializer, null);
     assertThat(o, instanceOf(ElasticSearchTransportClient.class));
+    ElasticSearchTransportClient tc = (ElasticSearchTransportClient) o;
+
   }
 
   @Test

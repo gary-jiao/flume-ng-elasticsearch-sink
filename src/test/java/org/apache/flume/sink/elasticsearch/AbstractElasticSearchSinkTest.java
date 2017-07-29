@@ -18,6 +18,7 @@
  */
 package org.apache.flume.sink.elasticsearch;
 
+import com.google.common.collect.Maps;
 import static org.apache.flume.sink.elasticsearch.ElasticSearchSinkConstants.BATCH_SIZE;
 import static org.apache.flume.sink.elasticsearch.ElasticSearchSinkConstants.CLUSTER_NAME;
 import static org.apache.flume.sink.elasticsearch.ElasticSearchSinkConstants.INDEX_NAME;
@@ -36,15 +37,12 @@ import org.apache.flume.channel.MemoryChannel;
 import org.apache.flume.conf.Configurables;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
-import org.elasticsearch.common.collect.Maps;
-import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.gateway.Gateway;
+
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.node.Node;
-import org.elasticsearch.node.NodeBuilder;
-import org.elasticsearch.node.internal.InternalNode;
+
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.joda.time.DateTimeUtils;
@@ -76,16 +74,17 @@ public abstract class AbstractElasticSearchSinkTest {
   }
 
   void createNodes() throws Exception {
-    Settings settings = ImmutableSettings
-        .settingsBuilder()
+    Settings settings = Settings
+        .builder()
         .put("number_of_shards", 1)
         .put("number_of_replicas", 0)
         .put("routing.hash.type", "simple")
         .put("gateway.type", "none")
         .put("path.data", "target/es-test")
+        .put("path.home", "C:/portable/elasticsearch-2.2.0")
         .build();
 
-    node = NodeBuilder.nodeBuilder().settings(settings).local(true).node();
+    //node = NodeBuilder.nodeBuilder().settings(settings).local(true).node();
     client = node.client();
 
     client.admin().cluster().prepareHealth().setWaitForGreenStatus().execute()
@@ -93,7 +92,7 @@ public abstract class AbstractElasticSearchSinkTest {
   }
 
   void shutdownNodes() throws Exception {
-    ((InternalNode) node).injector().getInstance(Gateway.class).reset();
+    //node.injector().getInstance(Gateway.class).reset();
     client.close();
     node.close();
   }
@@ -126,8 +125,13 @@ public abstract class AbstractElasticSearchSinkTest {
 
   void assertBodyQuery(int expectedHits, Event... events) {
     // Perform Multi Field Match
+      
+    /* arberal -- assertSearch(expectedHits,
+        performSearch(QueryBuilders.fieldQuery("@message", "event")), null); */
+    
     assertSearch(expectedHits,
-        performSearch(QueryBuilders.fieldQuery("@message", "event")), null);
+        performSearch(QueryBuilders.matchQuery("@message", "event")), null);
+    
   }
 
   SearchResponse performSearch(QueryBuilder query) {

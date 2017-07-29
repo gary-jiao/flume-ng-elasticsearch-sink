@@ -27,16 +27,17 @@ import static org.apache.flume.sink.elasticsearch.ElasticSearchSinkConstants.SER
 import static org.apache.flume.sink.elasticsearch.ElasticSearchSinkConstants.TTL;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.TimeZone;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import org.apache.commons.lang.time.FastDateFormat;
 
+import org.apache.commons.lang.time.FastDateFormat;
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
 import org.apache.flume.Event;
@@ -48,9 +49,6 @@ import org.apache.flume.conf.Configurables;
 import org.apache.flume.event.EventBuilder;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.client.Requests;
-import org.elasticsearch.common.UUID;
-import org.elasticsearch.common.io.BytesStream;
-import org.elasticsearch.common.io.FastByteArrayOutputStream;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.junit.After;
 import org.junit.Before;
@@ -119,7 +117,7 @@ public class TestElasticSearchSink extends AbstractElasticSearchSinkTest {
     assertSearch(1,
         performSearch(QueryBuilders.matchAllQuery()), expectedBody, event);
     assertSearch(1,
-        performSearch(QueryBuilders.fieldQuery("@message.event", "json")),
+        performSearch(QueryBuilders.matchQuery("@message.event", "json")),
         expectedBody, event);
   }
 
@@ -191,7 +189,7 @@ public class TestElasticSearchSink extends AbstractElasticSearchSinkTest {
 
   @Test
   public void shouldParseConfiguration() {
-    parameters.put(HOSTNAMES, "10.5.5.27");
+    parameters.put(HOSTNAMES, "node1.server");
     parameters.put(CLUSTER_NAME, "testing-cluster-name");
     parameters.put(INDEX_NAME, "testing-index-name");
     parameters.put(INDEX_TYPE, "testing-index-type");
@@ -200,7 +198,7 @@ public class TestElasticSearchSink extends AbstractElasticSearchSinkTest {
     fixture = new ElasticSearchSink();
     fixture.configure(new Context(parameters));
 
-    String[] expected = { "10.5.5.27" };
+    String[] expected = { "node1.server" };
 
     assertEquals("testing-cluster-name", fixture.getClusterName());
     assertEquals("testing-index-name", fixture.getIndexName());
@@ -392,11 +390,11 @@ public class TestElasticSearchSink extends AbstractElasticSearchSinkTest {
   public void shouldUseSpecifiedSerializer() throws Exception {
     Context context = new Context();
     context.put(SERIALIZER,
-        "org.apache.flume.sink.elasticsearch.FakeEventSerializer");
+        "org.apache.flume.sink.elasticsearch.ElasticSearchEventSerializer");
 
     assertNull(fixture.getEventSerializer());
     fixture.configure(context);
-    assertTrue(fixture.getEventSerializer() instanceof FakeEventSerializer);
+    assertTrue(fixture.getEventSerializer() instanceof ElasticSearchEventSerializer);
   }
 
   @Test
@@ -415,32 +413,6 @@ public class TestElasticSearchSink extends AbstractElasticSearchSinkTest {
     public void configure(Context arg0) {
       // no-op
     }
-  }
-}
-
-/**
- * Internal class. Fake event serializer used for tests
- */
-class FakeEventSerializer implements ElasticSearchEventSerializer {
-
-  static final byte[] FAKE_BYTES = new byte[] { 9, 8, 7, 6 };
-  boolean configuredWithContext, configuredWithComponentConfiguration;
-
-  @Override
-  public BytesStream getContentBuilder(Event event) throws IOException {
-    FastByteArrayOutputStream fbaos = new FastByteArrayOutputStream(4);
-    fbaos.write(FAKE_BYTES);
-    return fbaos;
-  }
-
-  @Override
-  public void configure(Context arg0) {
-    configuredWithContext = true;
-  }
-
-  @Override
-  public void configure(ComponentConfiguration arg0) {
-    configuredWithComponentConfiguration = true;
   }
 }
 

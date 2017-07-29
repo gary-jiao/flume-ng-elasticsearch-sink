@@ -1,27 +1,31 @@
 package org.apache.flume.sink.elasticsearch;
 
-import com.google.common.base.Splitter;
-import com.google.common.collect.Maps;
+import static org.apache.flume.sink.elasticsearch.ElasticSearchSinkConstants.CATEGORIES;
+import static org.apache.flume.sink.elasticsearch.ElasticSearchSinkConstants.DEFAULT_CATEGORY_NAME;
+//import static org.apache.flume.sink.elasticsearch.ElasticSearchSinkConstants.DEFAULT_CATEGORY_FIELDS;
+//import static org.apache.flume.sink.elasticsearch.ElasticSearchSinkConstants.DEFAULT_CATEGORY_REGEX;
+import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
+
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.flume.Context;
 import org.apache.flume.Event;
 import org.apache.flume.conf.ComponentConfiguration;
 import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.joda.time.DateTimeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import static org.apache.flume.sink.elasticsearch.ElasticSearchSinkConstants.*;
-//import static org.apache.flume.sink.elasticsearch.ElasticSearchSinkConstants.DEFAULT_CATEGORY_FIELDS;
-//import static org.apache.flume.sink.elasticsearch.ElasticSearchSinkConstants.DEFAULT_CATEGORY_REGEX;
-import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
+import com.google.common.base.Splitter;
+import com.google.common.collect.Maps;
 
 /**
  * Serialize flume events into the same format LogStash uses</p>
@@ -355,7 +359,7 @@ public class ElasticSearchLogStashRegexEventSerializer implements
 
         Iterable<String> categoryArr = Splitter.on(' ').omitEmptyStrings().split(categories);
         for (String category : categoryArr) {
-            String regex = context.getString(category + ".regex", null);
+            String regex = context.getString(category + ".regex", null).replaceAll("\\\\\\\\" ,"\\\\");
             String fields = context.getString(category + ".fields", null);
             String split = context.getString(category + ".split" , null);
             String timeField = context.getString(category + ".timeField", null);

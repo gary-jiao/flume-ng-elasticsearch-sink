@@ -16,12 +16,12 @@ public class ESUtilTest {
 	private static Client testClient = null;
 	private static Client publicClient = null;
 	private static Client payClient = null;
-	private static final int DEFAULT_PORT = 9300;
+	private static final int DEFAULT_PORT = 9200;
 	private static final Logger logger = Logger.getLogger(ESUtilTest.class);
 
 
 
-	public final static String ES_PAY_HOSTS = "10.1.23.191,10.1.23.192,10.1.23.193,10.1.23.194,10.1.23.195";
+	public final static String ES_PAY_HOSTS = "172.128.79.115";
 	public final static String ES_PAY_CLUSTER_NAME = "elasticsearch_hd";
 
 
@@ -111,6 +111,8 @@ public class ESUtilTest {
 	public static TransportClient openClient(String[] hostNames, String clusterName) {
 		Settings settings = Settings.builder().put("cluster.name", clusterName)// 指定集群名称
 				.put("client.transport.sniff", true)// 探测集群中机器状态
+				.put("node.name", "node1")
+				.put("local", false)
 				.build();
 		TransportClient client = new PreBuiltTransportClient(settings);
 
@@ -119,7 +121,7 @@ public class ESUtilTest {
 		try {
 			InetSocketTransportAddress[] addresses = new InetSocketTransportAddress[hostNames.length];
 			for (int i = 0; i < hostNames.length; i++) {
-				addresses[i] = new InetSocketTransportAddress(InetAddress.getByName(hostNames[i]), 9300);
+				addresses[i] = new InetSocketTransportAddress(InetAddress.getByName(hostNames[i]), 9200);
 			}
 
 			client.addTransportAddresses(addresses);

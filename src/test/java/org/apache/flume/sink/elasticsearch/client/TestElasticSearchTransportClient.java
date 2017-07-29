@@ -18,6 +18,15 @@
  */
 package org.apache.flume.sink.elasticsearch.client;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
+
+import java.io.IOException;
+
 import org.apache.flume.Event;
 import org.apache.flume.EventDeliveryException;
 import org.apache.flume.sink.elasticsearch.ElasticSearchEventSerializer;
@@ -28,17 +37,10 @@ import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.bytes.BytesReference;
-import org.elasticsearch.common.io.BytesStream;
+import org.elasticsearch.common.io.stream.BytesStream;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-
-import java.io.IOException;
-
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 public class TestElasticSearchTransportClient {
 
@@ -69,10 +71,10 @@ public class TestElasticSearchTransportClient {
     BytesStream bytesStream = mock(BytesStream.class);
 
     when(nameBuilder.getIndexName(any(Event.class))).thenReturn("foo_index");
-    when(bytesReference.toBytes()).thenReturn("{\"body\":\"test\"}".getBytes());
+    //when(bytesReference.toBytes()).thenReturn("{\"body\":\"test\"}".getBytes());
     when(bytesStream.bytes()).thenReturn(bytesReference);
-    when(serializer.getContentBuilder(any(Event.class)))
-        .thenReturn(bytesStream);
+//    when(serializer.getContentBuilder(any(Event.class)))
+//        .thenReturn(bytesStream);
     when(elasticSearchClient.prepareIndex(anyString(), anyString()))
         .thenReturn(indexRequestBuilder);
     when(indexRequestBuilder.setSource(bytesReference)).thenReturn(

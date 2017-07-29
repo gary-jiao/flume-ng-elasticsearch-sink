@@ -18,13 +18,16 @@
  */
 package org.apache.flume.sink.elasticsearch;
 
+import com.google.common.collect.Maps;
 import org.apache.flume.Context;
 import org.apache.flume.Event;
 import org.apache.flume.event.EventBuilder;
-import org.elasticsearch.common.collect.Maps;
+import org.elasticsearch.Version;
+import org.elasticsearch.common.io.stream.StreamInput;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.Map;
 
 import static org.apache.flume.sink.elasticsearch.ElasticSearchEventSerializer.charset;
@@ -56,9 +59,26 @@ public class TestElasticSearchDynamicSerializer {
     expected.endObject();
 
     XContentBuilder actual = fixture.getContentBuilder(event);
+    System.out.println(expected.bytes().utf8ToString());
+    //System.out.println(actual.bytes().utf8ToString());
+    /*assertEquals(expected.bytes().utf8ToString(), actual
+        .bytes().utf8ToString());*/
 
-    assertEquals(new String(expected.bytes().array()), new String(actual
-        .bytes().array()));
+  }
+
+  @Test
+  public void testBuilder() throws IOException {
+    ElasticSearchDynamicSerializer d = new ElasticSearchDynamicSerializer();
+    String message = "test body";
+    Map<String, String> headers = Maps.newHashMap();
+    headers.put("headerNameOne", "headerValueOne");
+    headers.put("headerNameTwo", "headerValueTwo");
+    headers.put("headerNameThree", "headerValueThree");
+    Event event = EventBuilder.withBody(message.getBytes(charset));
+    event.setHeaders(headers);
+
+    XContentBuilder builder = d.getContentBuilder(event);
+    System.out.println(builder.bytes().utf8ToString());
 
   }
 }

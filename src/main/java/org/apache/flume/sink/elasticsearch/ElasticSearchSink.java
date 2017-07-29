@@ -192,7 +192,7 @@ public class ElasticSearchSink extends AbstractSink implements Configurable {
 
 
                 if (event == null) {
-                    //logger.error("get event from channel error :"+indexName);
+                    logger.error("get event from channel error :"+indexName);
                     break;
                 }
                 String realIndexType = BucketPath.escapeString(indexType, event.getHeaders());
